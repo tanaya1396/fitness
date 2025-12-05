@@ -51,6 +51,7 @@ const firebaseConfig = {
 // Initialize Firebase (Only App and DB, no Auth needed for public/test mode)
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+console.log('Firebase project:', firebaseConfig.projectId);
 // This ID separates your data from others if using a shared DB, but crucial for your path structure
 const appId = 'trio-fitness-app'; 
 
@@ -194,12 +195,30 @@ export default function ExerciseSheet() {
         }, 
         { merge: true }
       );
+      console.log('Write succeeded:', docId, field, value);
       setSavingStatus('saved');
     } catch (err) { 
-        console.error(err);
+        console.error('Firestore write error:', err.code, err.message);
+        if (err.code === 'permission-denied') {
+          console.error('❌ Permission denied — Firestore rules block this write. Check Firebase Console > Firestore > Rules.');
+        }
         setSavingStatus('error'); 
     }
   };
+
+  // Expose a test-write helper to the deployed app's console for easy debugging
+  React.useEffect(() => {
+    window.testFirestoreWrite = async () => {
+      try {
+        const testId = `deployed_test_${Date.now()}`;
+        await setDoc(doc(db, 'fitness_apps', appId, 'data', testId), { test: true, ts: Date.now() });
+        console.log('Test write succeeded:', testId);
+      } catch (e) {
+        console.error('Test write failed:', e);
+      }
+    };
+    return () => { try { delete window.testFirestoreWrite } catch {} };
+  }, []);
 
   const saveProfiles = async (newProfiles) => {
     setProfiles(newProfiles);
