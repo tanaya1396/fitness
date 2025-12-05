@@ -34,15 +34,18 @@ import {
 } from 'lucide-react';
 import './App.css';
 // --- 1. CONFIGURATION ---
+import { initializeFirestoreData } from './setupFirestore';
+// --- 1. CONFIGURATION ---
 // 🔴 IMPORTANT: Replace the values below with your specific keys from:
 // Firebase Console -> Project Overview (Gear Icon) -> Project Settings -> General -> "Your apps"
 const firebaseConfig = {
-  apiKey: "REPLACE_WITH_YOUR_API_KEY",
-  authDomain: "REPLACE_WITH_YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "REPLACE_WITH_YOUR_PROJECT_ID",
-  storageBucket: "REPLACE_WITH_YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "REPLACE_WITH_NUMBERS",
-  appId: "REPLACE_WITH_APP_ID"
+  apiKey: "AIzaSyDAQOXRhQLAwvD3eIeGo_AsAKCHggngHLc",
+  authDomain: "fitnessapp-96d4a.firebaseapp.com",
+  projectId: "fitnessapp-96d4a",
+  storageBucket: "fitnessapp-96d4a.firebasestorage.app",
+  messagingSenderId: "881440144910",
+  appId: "1:881440144910:web:1ea7a07394d4cd74ac065f",
+  measurementId: "G-0PDJMLE03B"
 };
 
 // Initialize Firebase (Only App and DB, no Auth needed for public/test mode)
@@ -142,6 +145,8 @@ export default function ExerciseSheet() {
   // --- 2. DATA SYNC (NO AUTH) ---
   useEffect(() => {
     // We query the database immediately on load
+      // Initialize Firestore data if empty (pass existing `db` to avoid duplicate app)
+      initializeFirestoreData(db);
     const q = query(collection(db, 'fitness_apps', appId, 'data'));
     
     const unsubscribe = onSnapshot(q, (snap) => {
